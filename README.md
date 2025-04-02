@@ -1,5 +1,5 @@
 <p align="center" width="100%">
-  <img src="https://www.dropbox.com/scl/fi/77z7wnimtjivd2a2mbx83/icon.png?rlkey=4c6fqpzd26vezosrlprd9evqy&st=9ywlw41m&dl=1">
+  <img src="icon.png">
 </p>
 
 # M.E.A.
