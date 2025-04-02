@@ -47,3 +47,6 @@ FontUtils caches some fonts for you to use for UI creation.
 See GitHub Repo - Contributions welcomed and encouraged.
 
 https://github.com/modestimpala/ModEnforcementAgency
+
+[Join the Schedule 1 Modding Discord!](https://discord.gg/9Z5RKEYSzq)
+
