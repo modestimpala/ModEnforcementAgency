@@ -7,7 +7,6 @@ using ModEnforcementAgency.Utils;
 namespace ModEnforcementAgency.MainMenu
 {
 
-    [RegisterTypeInIl2Cpp]
     public class VersionDisplayComponent : MonoBehaviour
     {
         private static GameObject versionDisplay;
@@ -15,7 +14,10 @@ namespace ModEnforcementAgency.MainMenu
         private GameObject textObj;
         private Text versionText;
 
-        public VersionDisplayComponent(IntPtr ptr) : base(ptr) { }
+        public VersionDisplayComponent()
+        {
+            // Constructor
+        }
 
         public void SetVersion(string version)
         {

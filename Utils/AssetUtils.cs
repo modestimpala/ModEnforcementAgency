@@ -7,7 +7,7 @@ namespace ModEnforcementAgency.Utils
 {
     public static class AssetUtils
     {
-        public static Il2CppAssetBundle LoadAssetBundleFromResources(string bundleName, Assembly resourceAssembly)
+        public static AssetBundle LoadAssetBundleFromResources(string bundleName, Assembly resourceAssembly)
         {
             if (resourceAssembly == null)
             {
@@ -24,7 +24,7 @@ namespace ModEnforcementAgency.Utils
                 Core.Instance.LoggerInstance.Error($"AssetBundle {bundleName} not found in assembly manifest");
                 return null;
             }
-            Il2CppAssetBundle ret;
+            AssetBundle ret;
             using (var stream = resourceAssembly.GetManifestResourceStream(resourceName))
             {
                 if (stream == null)
@@ -32,23 +32,12 @@ namespace ModEnforcementAgency.Utils
                     Core.Instance.LoggerInstance.Error($"Failed to load AssetBundle {bundleName} from stream.");
                     return null;
                 }
-                // Convert Stream stream to Il2cppSystem.IO.Stream
-                Il2CppSystem.IO.Stream stream1 = new Il2CppSystem.IO.MemoryStream();
-                // Have to write manually I guess, I'm not sure if there is a way to convert a stream to Il2CppSystem.IO.Stream or get a manifest stream in that type
-                byte[] buffer = new byte[4096];
-                int bytesRead;
-                while ((bytesRead = stream.Read(buffer, 0, buffer.Length)) > 0)
-                {
-                    stream1.Write(buffer, 0, bytesRead);
-                }
-                stream1.Position = 0; // Reset the position of the stream to the beginning
-                // Load the asset bundle from the stream
-                ret = Il2CppAssetBundleManager.LoadFromStream(stream1);
+                ret = AssetBundle.LoadFromStream(stream);
             }
             return ret;
         }
 
-        public static Il2CppAssetBundle LoadAssetBundleFromAbsolutePath(string absolutePath)
+        public static AssetBundle LoadAssetBundleFromAbsolutePath(string absolutePath)
         {
             if (string.IsNullOrEmpty(absolutePath))
             {
@@ -64,14 +53,11 @@ namespace ModEnforcementAgency.Utils
 
             try
             {
-                // Read all bytes from the file
-                byte[] assetBundleData = File.ReadAllBytes(absolutePath);
-
-                // Create an Il2Cpp memory stream
-                Il2CppSystem.IO.MemoryStream il2cppStream = new Il2CppSystem.IO.MemoryStream(assetBundleData);
-
-                // Load the asset bundle from the stream
-                Il2CppAssetBundle assetBundle = Il2CppAssetBundleManager.LoadFromStream(il2cppStream);
+                // Load the AssetBundle from the absolute path
+                using FileStream fileStream = new FileStream(absolutePath, FileMode.Open, FileAccess.Read);
+                using MemoryStream memoryStream = new MemoryStream();
+                fileStream.CopyTo(memoryStream);
+                AssetBundle assetBundle = AssetBundle.LoadFromStream(memoryStream);
 
                 if (assetBundle == null)
                 {
@@ -88,7 +74,7 @@ namespace ModEnforcementAgency.Utils
             }
         }
 
-        public static Il2CppAssetBundle LoadAssetBundleFromRelativePath(string relativePath, Assembly assembly)
+        public static AssetBundle LoadAssetBundleFromRelativePath(string relativePath, Assembly assembly)
         {
             if (assembly == null)
             {

@@ -2,9 +2,9 @@
 using MelonLoader;
 using UnityEngine;
 using UnityEngine.UI;
-using Il2CppScheduleOne.UI.MainMenu;
-using Il2CppTMPro;
 using ModEnforcementAgency.Utils;
+using ScheduleOne.UI.MainMenu;
+using TMPro;
 
 namespace ModEnforcementAgency.MainMenu
 {
@@ -116,13 +116,10 @@ namespace ModEnforcementAgency.MainMenu
                 uiPrefab.SetActive(false);
 
                 // Add the new category to the settings screen
-                // Since we can't directly modify the array, we need to create a new array
-                var newCategories = new Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppReferenceArray<SettingsScreen.SettingsCategory>(categories.Length + 1);
-                for (int i = 0; i < categories.Length; i++)
-                {
-                    newCategories[i] = categories[i];
-                }
+                var newCategories = new SettingsScreen.SettingsCategory[categories.Length + 1];
+                Array.Copy(categories, newCategories, categories.Length);
                 newCategories[categories.Length] = modCategory;
+                
 
                 // Assign the new array
                 settingsScreen.Categories = newCategories;

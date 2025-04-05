@@ -1,9 +1,9 @@
 ﻿using MelonLoader;
 using UnityEngine;
-using Il2CppScheduleOne;
-using Il2CppScheduleOne.ItemFramework;
-using Il2CppScheduleOne.UI.Shop;
 using ModEnforcementAgency.Utils;
+using ScheduleOne.ItemFramework;
+using ScheduleOne.UI.Shop;
+using ScheduleOne;
 
 namespace ModEnforcementAgency.Managers.Items
 {

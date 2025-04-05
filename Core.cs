@@ -1,17 +1,13 @@
 ﻿using MelonLoader;
-using HarmonyLib;
-using UnityEngine;
-using Il2CppInterop.Runtime.Injection;
-using Il2CppScheduleOne.UI.MainMenu;
-using Il2CppScheduleOne.ItemFramework;
-using Il2CppScheduleOne.Product;
-using ModEnforcementAgency.Utils;
 using ModEnforcementAgency.MainMenu;
-using ModEnforcementAgency.Managers;
 using ModEnforcementAgency.Managers.Items;
+using ModEnforcementAgency.Managers;
+using ModEnforcementAgency.Utils;
+using ScheduleOne.UI.MainMenu;
+using UnityEngine;
+using HarmonyLib;
 
-
-[assembly: MelonInfo(typeof(ModEnforcementAgency.Core), "ModEnforcementAgency", "0.1.0", "Moddy", null)]
+[assembly: MelonInfo(typeof(ModEnforcementAgency.Core), "ModEnforcementAgency", "0.1.1", "Moddy", null)]
 [assembly: MelonGame("TVGS", "Schedule I")]
 [assembly: HarmonyDontPatchAll]
 
@@ -21,12 +17,12 @@ namespace ModEnforcementAgency
     {
         public static Core Instance;
         internal static ModManager ModManager => ModManager.Instance; // Access to the ModManager instance for managing mods
-        public const string VERSION = "0.1.0";
-        
+        public const string VERSION = "0.1.1";
+
         private bool settingsTabAdded = false;
         private bool versionDisplayConfigured = false;
 
-        public Il2CppAssetBundle MEAContent { get; private set; }
+        public AssetBundle MEAContent { get; private set; }
 
         public MelonLogger.Instance logger;
 
@@ -48,7 +44,7 @@ namespace ModEnforcementAgency
 
         public override void OnPreInitialization()
         {
-            
+
         }
 
         public override void OnInitializeMelon()
@@ -57,21 +53,18 @@ namespace ModEnforcementAgency
             logger = LoggerInstance;
             LoggerInstance.Msg("MEA v" + VERSION + " Initialized.");
 
-            // Register our custom component
-            ClassInjector.RegisterTypeInIl2Cpp<VersionDisplayComponent>();
 
             // Apply harmony patches
             HarmonyLib.Harmony harmony = new HarmonyLib.Harmony("com.moddy.ModEnforcementAgency");
             ApplyPatches(harmony);
-            
+
         }
 
 
         private void ApplyPatches(HarmonyLib.Harmony harmony)
         {
-            // Hook into the SettingsScreen.Start method
-            var originalMethod = typeof(SettingsScreen).GetMethod("Start", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
-            var postfixMethod = typeof(Core).GetMethod("SettingsScreen_Start_Postfix", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
+            var originalMethod = AccessTools.Method(typeof(SettingsScreen), "Start");
+            var postfixMethod = AccessTools.Method(typeof(Core), "SettingsScreen_Start_Postfix");
 
             if (originalMethod != null && postfixMethod != null)
             {
@@ -80,25 +73,25 @@ namespace ModEnforcementAgency
             }
             else
             {
-                LoggerInstance.Error("Failed to patch SettingsScreen.Start");
+                LoggerInstance.Error($"Failed to patch SettingsScreen.Start - originalMethod={originalMethod != null}, postfixMethod={postfixMethod != null}");
             }
 
-            var originalMainMenuMethod = typeof(MainMenuRig).GetMethod("LoadStuff", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
-            var postfixMainMenuMethod = typeof(Core).GetMethod("MainMenuScreen_Open_Postfix", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
+            var originalMainMenuMethod = AccessTools.Method(typeof(MainMenuRig), "LoadStuff");
+            var postfixMainMenuMethod = AccessTools.Method(typeof(Core), "MainMenuScreen_Open_Postfix");
 
             if (originalMainMenuMethod != null && postfixMainMenuMethod != null)
             {
                 harmony.Patch(originalMainMenuMethod, null, new HarmonyMethod(postfixMainMenuMethod));
-                LoggerInstance.Msg("Successfully patched MainMenuScreen.Open");
+                LoggerInstance.Msg("Successfully patched MainMenuRig.LoadStuff");
             }
             else
             {
-                LoggerInstance.Error("Failed to patch MainMenuScreen.Open");
+                LoggerInstance.Error($"Failed to patch MainMenuRig.LoadStuff - originalMethod={originalMainMenuMethod != null}, postfixMethod={postfixMainMenuMethod != null}");
             }
         }
 
         // Postfix for SettingsScreen.Start
-        [HarmonyPatch(typeof(SettingsScreen), "Start")]
+
         private static void SettingsScreen_Start_Postfix(SettingsScreen __instance)
         {
             if (Instance != null && !Instance.settingsTabAdded)
@@ -110,8 +103,8 @@ namespace ModEnforcementAgency
         }
 
         // Postfix for MainMenuRig.LoadStuff
-        [HarmonyPatch(typeof(MainMenuRig), "LoadStuff")]
-        private static void MainMenuScreen_Open_Postfix(MainMenuScreen __instance)
+        
+        private static void MainMenuScreen_Open_Postfix(MainMenuRig __instance)
         {
             if (Core.Instance != null && !Core.Instance.versionDisplayConfigured)
             {
